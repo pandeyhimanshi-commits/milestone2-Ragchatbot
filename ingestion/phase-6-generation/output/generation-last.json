@@ -1,0 +1,179 @@
+{
+  "decision": "insufficient_evidence",
+  "thread_id": "web-a0697a6e-9c55-4f2b-bc91-f869ced28431",
+  "query": "in which scheme i should invest",
+  "answer": "I couldn't find this in the indexed official sources\nSource: https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth\nLast updated: 2026-04-23",
+  "citation_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
+  "validation_passed": true,
+  "validation_errors": [],
+  "started_at": "2026-04-23T07:09:15.308880+00:00",
+  "finished_at": "2026-04-23T07:09:24.232934+00:00",
+  "retrieval": {
+    "decision": "insufficient_evidence",
+    "query": "in which scheme i should invest",
+    "query_expanded": "in which scheme i should invest",
+    "thread_id": "web-a0697a6e-9c55-4f2b-bc91-f869ced28431",
+    "scheme_slug": null,
+    "citation_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
+    "confidence_best_distance": 0.35131192,
+    "message": "I couldn't find this in the indexed official sources.",
+    "started_at": "2026-04-23T07:09:24.220227+00:00",
+    "finished_at": "2026-04-23T07:09:24.227690+00:00",
+    "retrieved": [
+      {
+        "chunk_id": "e8db06d80256470e850ec20d8c43beea185afa7b7cc2e67f7bfaf6a864a5d643",
+        "text": "Scheme: HDFC Equity Fund Direct Growth. NAV \u20b92186.728 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b991334.9081 Cr. Expense ratio 0.83% p.a. Groww rating 5/10.",
+        "metadata": {
+          "scheme_name": "HDFC Equity Fund Direct Growth",
+          "chunk_index": 0,
+          "embedding_dim": 384,
+          "section_path": "Key metrics",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "slug": "hdfc-equity-fund-direct-growth",
+          "fetched_at": "2026-04-23T06:46:56.472147+00:00",
+          "doc_type": "groww_scheme_metrics",
+          "chunk_id": "e8db06d80256470e850ec20d8c43beea185afa7b7cc2e67f7bfaf6a864a5d643",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "source_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
+          "content_hash": "c8bac9c028c7df818d804568616a19bc475cd47f35dc91421ecdec4fc568c3df"
+        },
+        "distance": 0.35131192
+      },
+      {
+        "chunk_id": "f93c7387e4d3081ff918a8c3b03f2872af898557667c14bd10df45a320d12e59",
+        "text": "Scheme: HDFC Focused Fund Direct Growth. NAV \u20b9260.921 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b924169.507 Cr. Expense ratio 0.85% p.a. Groww rating 5/10.",
+        "metadata": {
+          "content_hash": "ca2ac5d7a4d9ffcfeaf86fb9ab0390d4fa87dff890f8ecea359dd19669c49542",
+          "source_url": "https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "chunk_id": "f93c7387e4d3081ff918a8c3b03f2872af898557667c14bd10df45a320d12e59",
+          "section_path": "Key metrics",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "chunk_index": 0,
+          "slug": "hdfc-focused-fund-direct-growth",
+          "doc_type": "groww_scheme_metrics",
+          "scheme_name": "HDFC Focused Fund Direct Growth",
+          "embedding_dim": 384,
+          "fetched_at": "2026-04-23T06:46:59.158274+00:00"
+        },
+        "distance": 0.35719824
+      },
+      {
+        "chunk_id": "1e63469a258972ef25a99c6638a8cd41a527bade702cd052bfbe2e97e9be594b",
+        "text": "Scheme: HDFC Large Cap Fund Direct Growth. NAV \u20b91212.671 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b935458.4981 Cr. Expense ratio 1.12% p.a. Groww rating 5/10.",
+        "metadata": {
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "slug": "hdfc-large-cap-fund-direct-growth",
+          "chunk_index": 0,
+          "doc_type": "groww_scheme_metrics",
+          "content_hash": "8a1a54a02f774af28dc28a247d1404e5c7ca47da18cffc89100668b47edef390",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "chunk_id": "1e63469a258972ef25a99c6638a8cd41a527bade702cd052bfbe2e97e9be594b",
+          "section_path": "Key metrics",
+          "source_url": "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth",
+          "fetched_at": "2026-04-23T06:47:03.573616+00:00",
+          "embedding_dim": 384,
+          "scheme_name": "HDFC Large Cap Fund Direct Growth"
+        },
+        "distance": 0.3680839
+      },
+      {
+        "chunk_id": "4fb23c099cfabd7a6568900d94caf89f90c6e2adebdc04b2874ad2efe490c779",
+        "text": "Scheme: HDFC Mid Cap Fund Direct Growth. NAV \u20b9221.614 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b985357.9246 Cr. Expense ratio 0.8% p.a. Groww rating 5/10.",
+        "metadata": {
+          "section_path": "Key metrics",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "chunk_id": "4fb23c099cfabd7a6568900d94caf89f90c6e2adebdc04b2874ad2efe490c779",
+          "doc_type": "groww_scheme_metrics",
+          "source_url": "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "fetched_at": "2026-04-23T06:46:50.196201+00:00",
+          "chunk_index": 0,
+          "slug": "hdfc-mid-cap-fund-direct-growth",
+          "embedding_dim": 384,
+          "scheme_name": "HDFC Mid Cap Fund Direct Growth",
+          "content_hash": "a1264ca22a6a7c7210af917903458f513172f18db91f732b9934f66f80d523e9"
+        },
+        "distance": 0.37125456
+      },
+      {
+        "chunk_id": "805107f8d623cd95a85359684a9ee837caf1a48f4a461e3984b8c0a12d286739",
+        "text": "Scheme: HDFC ELSS Tax Saver Fund Direct Plan Growth. NAV \u20b91485.591 per unit as of 22-Apr-2026. Minimum SIP \u20b9500. Fund size (AUM) \u20b914615.1912 Cr. Expense ratio 1.1% p.a. Groww rating 5/10.",
+        "metadata": {
+          "chunk_index": 0,
+          "content_hash": "173c94a1e2ad2c0ce9647de739aebabcc34792e645869595246e3b9277e24378",
+          "doc_type": "groww_scheme_metrics",
+          "chunk_id": "805107f8d623cd95a85359684a9ee837caf1a48f4a461e3984b8c0a12d286739",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "fetched_at": "2026-04-23T06:47:01.456995+00:00",
+          "scheme_name": "HDFC ELSS Tax Saver Fund Direct Plan Growth",
+          "slug": "hdfc-elss-tax-saver-fund-direct-plan-growth",
+          "embedding_dim": 384,
+          "section_path": "Key metrics",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "source_url": "https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth"
+        },
+        "distance": 0.40164304
+      }
+    ],
+    "grounded": [
+      {
+        "chunk_id": "e8db06d80256470e850ec20d8c43beea185afa7b7cc2e67f7bfaf6a864a5d643",
+        "text": "Scheme: HDFC Equity Fund Direct Growth. NAV \u20b92186.728 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b991334.9081 Cr. Expense ratio 0.83% p.a. Groww rating 5/10.",
+        "metadata": {
+          "scheme_name": "HDFC Equity Fund Direct Growth",
+          "chunk_index": 0,
+          "embedding_dim": 384,
+          "section_path": "Key metrics",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "slug": "hdfc-equity-fund-direct-growth",
+          "fetched_at": "2026-04-23T06:46:56.472147+00:00",
+          "doc_type": "groww_scheme_metrics",
+          "chunk_id": "e8db06d80256470e850ec20d8c43beea185afa7b7cc2e67f7bfaf6a864a5d643",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "source_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
+          "content_hash": "c8bac9c028c7df818d804568616a19bc475cd47f35dc91421ecdec4fc568c3df"
+        },
+        "distance": 0.35131192
+      },
+      {
+        "chunk_id": "f93c7387e4d3081ff918a8c3b03f2872af898557667c14bd10df45a320d12e59",
+        "text": "Scheme: HDFC Focused Fund Direct Growth. NAV \u20b9260.921 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b924169.507 Cr. Expense ratio 0.85% p.a. Groww rating 5/10.",
+        "metadata": {
+          "content_hash": "ca2ac5d7a4d9ffcfeaf86fb9ab0390d4fa87dff890f8ecea359dd19669c49542",
+          "source_url": "https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "chunk_id": "f93c7387e4d3081ff918a8c3b03f2872af898557667c14bd10df45a320d12e59",
+          "section_path": "Key metrics",
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "chunk_index": 0,
+          "slug": "hdfc-focused-fund-direct-growth",
+          "doc_type": "groww_scheme_metrics",
+          "scheme_name": "HDFC Focused Fund Direct Growth",
+          "embedding_dim": 384,
+          "fetched_at": "2026-04-23T06:46:59.158274+00:00"
+        },
+        "distance": 0.35719824
+      },
+      {
+        "chunk_id": "1e63469a258972ef25a99c6638a8cd41a527bade702cd052bfbe2e97e9be594b",
+        "text": "Scheme: HDFC Large Cap Fund Direct Growth. NAV \u20b91212.671 per unit as of 22-Apr-2026. Minimum SIP \u20b9100. Fund size (AUM) \u20b935458.4981 Cr. Expense ratio 1.12% p.a. Groww rating 5/10.",
+        "metadata": {
+          "embedding_model_id": "BAAI/bge-small-en-v1.5",
+          "slug": "hdfc-large-cap-fund-direct-growth",
+          "chunk_index": 0,
+          "doc_type": "groww_scheme_metrics",
+          "content_hash": "8a1a54a02f774af28dc28a247d1404e5c7ca47da18cffc89100668b47edef390",
+          "embedded_at": "2026-04-23T06:47:23.422727+00:00",
+          "chunk_id": "1e63469a258972ef25a99c6638a8cd41a527bade702cd052bfbe2e97e9be594b",
+          "section_path": "Key metrics",
+          "source_url": "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth",
+          "fetched_at": "2026-04-23T06:47:03.573616+00:00",
+          "embedding_dim": 384,
+          "scheme_name": "HDFC Large Cap Fund Direct Growth"
+        },
+        "distance": 0.3680839
+      }
+    ]
+  }
+}

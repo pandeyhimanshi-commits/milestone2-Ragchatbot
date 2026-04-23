@@ -1,0 +1,8 @@
+{
+  "phase": "7",
+  "name": "multi_thread_support",
+  "description": "Phase 7 multi-thread/multi-conversation support (docs/rag-architecture.md §7)",
+  "inputs": "thread_id, user_message, optional client_ip",
+  "outputs": "output/threading-last.json, output/thread_state.json, output/rate_limit_state.json",
+  "cli": "python -m threading_service --thread-id \"<uuid>\" --message \"<text>\" --client-ip \"127.0.0.1\""
+}

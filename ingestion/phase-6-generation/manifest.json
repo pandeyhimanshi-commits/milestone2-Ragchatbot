@@ -1,0 +1,8 @@
+{
+  "phase": "6",
+  "name": "generation_guardrails",
+  "description": "Phase 6 runtime generation + guardrails using Gemini (docs/rag-architecture.md §6)",
+  "inputs": "User query + thread_id; retrieval candidates from phase-5-retrieval",
+  "outputs": "output/generation-last.json",
+  "cli": "python -m generation_service --query \"<question>\" --thread-id \"<uuid>\""
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MF FAQ Test UI</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h1>MF Chat</h1>
+          <button id="newThreadBtn" class="secondary-btn">+ New</button>
+        </div>
+        <p class="note">Facts-only assistant. No PAN/Aadhaar/OTP/account details.</p>
+        <div id="threadsList" class="threads-list"></div>
+      </aside>
+
+      <section class="chat-panel">
+        <div class="chat-head">
+          <div>
+            <div class="label">Active Thread</div>
+            <div id="activeThreadId" class="thread-id"></div>
+          </div>
+        </div>
+
+        <div id="messages" class="messages"></div>
+
+        <div class="composer">
+          <textarea
+            id="msg"
+            rows="3"
+            placeholder="Ask: What is NAV on HDFC Mid Cap Fund Direct Growth?"
+          ></textarea>
+          <div class="composer-actions">
+            <button id="sendBtn">Send</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

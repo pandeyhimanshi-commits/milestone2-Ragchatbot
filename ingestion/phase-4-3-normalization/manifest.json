@@ -1,0 +1,9 @@
+{
+  "phase": "4.3",
+  "name": "normalization",
+  "description": "Extract key fund metrics from Groww __NEXT_DATA__ — docs/rag-architecture.md §4.3",
+  "fields": ["nav", "minimum_sip", "fund_size_aum", "expense_ratio", "rating"],
+  "inputs": "ingestion/phase-4-2-scraping/output/",
+  "outputs": "ingestion/phase-4-3-normalization/output/<slug>/metrics.json",
+  "cli": "python -m normalize_service (from phase-4-3-normalization/)"
+}

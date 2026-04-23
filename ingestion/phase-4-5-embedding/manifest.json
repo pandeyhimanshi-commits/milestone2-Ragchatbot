@@ -1,0 +1,10 @@
+{
+  "phase": "4.5",
+  "name": "embedding",
+  "embedding_model_id": "BAAI/bge-small-en-v1.5",
+  "embedding_dim": 384,
+  "description": "Dense vectors for chunk text — docs/rag-architecture.md §4.5",
+  "inputs": "ingestion/phase-4-4-chunking/output/<slug>/chunks.json",
+  "outputs": "ingestion/phase-4-5-embedding/output/<slug>/embedded_chunks.json, embed-run-report.json",
+  "cli": "python -m embed_service (from phase-4-5-embedding/)"
+}

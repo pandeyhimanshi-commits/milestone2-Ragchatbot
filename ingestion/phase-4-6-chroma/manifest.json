@@ -1,0 +1,8 @@
+{
+  "phase": "4.6",
+  "name": "chroma_index",
+  "description": "Upsert embeddings into Chroma — docs/rag-architecture.md §4.6; docs/chunking-embedding-architecture.md §4.6–4.7",
+  "inputs": "ingestion/phase-4-5-embedding/output/<slug>/embedded_chunks.json; optional corpus-manifest.json alongside for alignment checks",
+  "outputs": "output/chroma-ingest-report.json; output/corpus-version.txt; Chroma collection mf_faq_groww_metrics (384-d, cosine, precomputed vectors). Deployment: PersistentClient data/chroma_db, HttpClient (CHROMA_HTTP_HOST), or Cloud (CHROMA_CLOUD_TENANT, CHROMA_CLOUD_DATABASE, CHROMA_API_KEY in .env)",
+  "cli": "python -m chroma_service (from phase-4-6-chroma/)"
+}

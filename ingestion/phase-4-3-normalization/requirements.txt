@@ -1,0 +1,1 @@
+# stdlib only — JSON embedded in __NEXT_DATA__

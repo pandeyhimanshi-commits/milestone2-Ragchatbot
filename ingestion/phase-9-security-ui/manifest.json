@@ -1,0 +1,8 @@
+{
+  "phase": "9",
+  "name": "security_privacy_compliance_ui",
+  "description": "Phase 9 security/privacy/compliance guardrails + basic HTML/CSS test UI",
+  "inputs": "thread_id, user_message, optional client_ip",
+  "outputs": "output/security-log.jsonl, output/runtime-last.json",
+  "cli": "uvicorn runtime_api.app:app --host 127.0.0.1 --port 8080"
+}

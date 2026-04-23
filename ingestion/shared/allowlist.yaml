@@ -1,0 +1,8 @@
+# Allowlisted corpus URLs (Phase 1) — see docs/rag-architecture.md §3.1
+version: 1
+urls:
+  - https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth
+  - https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth
+  - https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth
+  - https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth
+  - https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth

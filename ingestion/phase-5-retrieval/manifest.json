@@ -1,0 +1,8 @@
+{
+  "phase": "5",
+  "name": "retrieval_runtime",
+  "description": "Phase 5 runtime retrieval over Chroma (docs/rag-architecture.md §5)",
+  "inputs": "User query + thread_id; Chroma collection mf_faq_groww_metrics from phase-4-6",
+  "outputs": "output/retrieval-last.json (debug), grounding package (top 1-3 chunks)",
+  "cli": "python -m retrieval_service --query \"<question>\" --thread-id \"<uuid>\""
+}

@@ -1,0 +1,8 @@
+{
+  "phase": "4.4",
+  "name": "chunking",
+  "description": "Build chunk records from metrics.json — docs/rag-architecture.md §4.4",
+  "inputs": "ingestion/phase-4-3-normalization/output/<slug>/metrics.json",
+  "outputs": "ingestion/phase-4-4-chunking/output/<slug>/chunks.json, chunk-run-report.json",
+  "cli": "python -m chunk_service (from phase-4-4-chunking/)"
+}

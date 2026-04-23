@@ -1,0 +1,30 @@
+{
+  "phase": "4.1",
+  "name": "scheduler",
+  "description": "GitHub Actions scheduled ingest — see docs/rag-architecture.md §4.1",
+  "implementation": "GitHub Actions workflow",
+  "workflow_path": ".github/workflows/ingest-corpus.yml",
+  "schedule": {
+    "intent_local": "09:15 Asia/Kolkata (IST)",
+    "cron_utc": "45 3 * * *",
+    "note": "GitHub Actions schedule.cron uses UTC only; 09:15 IST = 03:45 UTC"
+  },
+  "manual_trigger": "workflow_dispatch",
+  "concurrency_group": "ingest-corpus",
+  "github_actions_secrets_chroma_cloud": [
+    "CHROMA_CLOUD_TENANT",
+    "CHROMA_CLOUD_DATABASE",
+    "CHROMA_API_KEY"
+  ],
+  "pipeline": [
+    "checkout",
+    "setup_python",
+    "phase_4_2_scrape",
+    "phase_4_3_normalize",
+    "phase_4_4_chunk",
+    "phase_4_5_embed",
+    "phase_4_6_chroma",
+    "upload_artifacts_run_summary"
+  ],
+  "next_phases": "Runtime API: query Chroma + LLM (docs/rag-architecture.md §5–6)"
+}

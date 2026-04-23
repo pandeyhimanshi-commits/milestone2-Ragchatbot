@@ -1,0 +1,252 @@
+# Phase 4.1 — Scheduler (docs/rag-architecture.md §4.1)
+#
+# Runs the full ingest chain every day at 09:15 Asia/Kolkata (IST):
+#   GitHub Actions cron is UTC-only → 09:15 IST = 03:45 UTC → cron "45 3 * * *"
+#
+# Pipeline order (each step uses fresh outputs from the previous):
+#   4.2 scrape → 4.3 normalize → 4.4 chunk → 4.5 embed → 4.6 Chroma upsert
+#
+# Chroma Cloud (production index): add repository secrets (Settings → Secrets and variables → Actions):
+#   CHROMA_CLOUD_TENANT, CHROMA_CLOUD_DATABASE, CHROMA_API_KEY
+# If those are unset, Phase 4.6 uses an ephemeral PersistentClient on the runner only.
+name: Ingest corpus
+
+on:
+  schedule:
+    - cron: "45 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ingest-corpus
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    name: "Daily ingest (09:15 IST): scrape → chunk → embed → Chroma"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reset previous ingest data (keep latest-run data only)
+        run: |
+          rm -rf ingestion/phase-4-2-scraping/output/*
+          rm -rf ingestion/phase-4-2-scraping/data/snapshots/*
+          rm -rf ingestion/phase-4-3-normalization/output/*
+          rm -rf ingestion/phase-4-4-chunking/output/*
+          rm -rf ingestion/phase-4-5-embedding/output/*
+          rm -rf ingestion/phase-4-6-chroma/output/*
+          rm -rf ingestion/phase-4-6-chroma/data/chroma_db/*
+
+          mkdir -p ingestion/phase-4-2-scraping/output
+          mkdir -p ingestion/phase-4-2-scraping/data/snapshots
+          mkdir -p ingestion/phase-4-3-normalization/output
+          mkdir -p ingestion/phase-4-4-chunking/output
+          mkdir -p ingestion/phase-4-5-embedding/output
+          mkdir -p ingestion/phase-4-6-chroma/output
+          mkdir -p ingestion/phase-4-6-chroma/data/chroma_db
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            ingestion/phase-4-2-scraping/requirements.txt
+            ingestion/phase-4-5-embedding/requirements.txt
+            ingestion/phase-4-6-chroma/requirements.txt
+
+      - name: Install dependencies
+        id: install_deps
+        run: |
+          pip install -r ingestion/phase-4-2-scraping/requirements.txt
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r ingestion/phase-4-5-embedding/requirements.txt
+          pip install -r ingestion/phase-4-6-chroma/requirements.txt
+
+      - name: Run scraping service
+        id: scrape
+        working-directory: ingestion/phase-4-2-scraping
+        env:
+          # Fail workflow if any allowlisted URL fails (strict; override in fork if needed)
+          SCRAPE_STRICT: "1"
+        run: python -m scrape_service
+
+      - name: Phase 4.3 — Normalize HTML
+        id: normalize
+        working-directory: ingestion/phase-4-3-normalization
+        env:
+          NORMALIZE_STRICT: "1"
+        run: python -m normalize_service
+
+      - name: Phase 4.4 — Chunking
+        id: chunk
+        working-directory: ingestion/phase-4-4-chunking
+        env:
+          CHUNK_STRICT: "1"
+        run: python -m chunk_service
+
+      - name: Phase 4.5 — Embeddings (BAAI/bge-small-en-v1.5)
+        id: embed
+        working-directory: ingestion/phase-4-5-embedding
+        env:
+          EMBED_STRICT: "1"
+          EMBEDDING_MODEL_ID: "BAAI/bge-small-en-v1.5"
+        run: python -m embed_service
+
+      - name: Phase 4.6 — Chroma index (Cloud when secrets are set)
+        id: chroma
+        working-directory: ingestion/phase-4-6-chroma
+        env:
+          CHROMA_STRICT: "1"
+          CHROMA_RECREATE_COLLECTION: "1"
+          ANONYMIZED_TELEMETRY: "False"
+          CHROMA_CLOUD_TENANT: ${{ secrets.CHROMA_CLOUD_TENANT }}
+          CHROMA_CLOUD_DATABASE: ${{ secrets.CHROMA_CLOUD_DATABASE }}
+          CHROMA_API_KEY: ${{ secrets.CHROMA_API_KEY }}
+        run: python -m chroma_service
+
+      - name: Write scheduler activity log
+        if: always()
+        env:
+          INSTALL_DEPS_OUTCOME: ${{ steps.install_deps.outcome }}
+          SCRAPE_OUTCOME: ${{ steps.scrape.outcome }}
+          NORMALIZE_OUTCOME: ${{ steps.normalize.outcome }}
+          CHUNK_OUTCOME: ${{ steps.chunk.outcome }}
+          EMBED_OUTCOME: ${{ steps.embed.outcome }}
+          CHROMA_OUTCOME: ${{ steps.chroma.outcome }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          EVENT_NAME: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          mkdir -p ingestion/phase-4-1-scheduler/output
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          out_dir = Path("ingestion/phase-4-1-scheduler/output")
+          jsonl_path = out_dir / "scheduler-activity-log.jsonl"
+          latest_path = out_dir / "scheduler-last-run.json"
+
+          now = datetime.now(timezone.utc).isoformat()
+          steps = {
+              "install_dependencies": os.environ.get("INSTALL_DEPS_OUTCOME", "unknown"),
+              "phase_4_2_scrape": os.environ.get("SCRAPE_OUTCOME", "unknown"),
+              "phase_4_3_normalize": os.environ.get("NORMALIZE_OUTCOME", "unknown"),
+              "phase_4_4_chunk": os.environ.get("CHUNK_OUTCOME", "unknown"),
+              "phase_4_5_embed": os.environ.get("EMBED_OUTCOME", "unknown"),
+              "phase_4_6_chroma": os.environ.get("CHROMA_OUTCOME", "unknown"),
+          }
+          has_failure = any(v != "success" for v in steps.values())
+          record = {
+              "ts": now,
+              "workflow": os.environ.get("WORKFLOW_NAME"),
+              "repository": os.environ.get("REPOSITORY"),
+              "event": os.environ.get("EVENT_NAME"),
+              "actor": os.environ.get("ACTOR"),
+              "ref_name": os.environ.get("REF_NAME"),
+              "sha": os.environ.get("SHA"),
+              "run_id": os.environ.get("RUN_ID"),
+              "run_attempt": os.environ.get("RUN_ATTEMPT"),
+              "status": "failed" if has_failure else "success",
+              "steps": steps,
+          }
+          with jsonl_path.open("a", encoding="utf-8") as f:
+              f.write(json.dumps(record, ensure_ascii=False) + "\n")
+          latest_path.write_text(json.dumps(record, indent=2), encoding="utf-8")
+          print(f"wrote scheduler activity log: {jsonl_path}")
+          PY
+
+      - name: Upload scrape output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scrape-output
+          path: ingestion/phase-4-2-scraping/output/
+          if-no-files-found: warn
+
+      - name: Upload normalized output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: normalize-output
+          path: ingestion/phase-4-3-normalization/output/
+          if-no-files-found: warn
+
+      - name: Upload chunk output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chunk-output
+          path: ingestion/phase-4-4-chunking/output/
+          if-no-files-found: warn
+
+      - name: Upload embedding output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: embed-output
+          path: ingestion/phase-4-5-embedding/output/
+          if-no-files-found: warn
+
+      - name: Upload Chroma reports + DB
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chroma-output
+          path: |
+            ingestion/phase-4-6-chroma/output
+            ingestion/phase-4-6-chroma/data/chroma_db
+          if-no-files-found: warn
+
+      - name: Upload scheduler activity log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scheduler-output
+          path: ingestion/phase-4-1-scheduler/output/
+          if-no-files-found: warn
+
+      - name: Write job summary
+        if: always()
+        run: |
+          if [ -f ingestion/phase-4-2-scraping/output/run-report.json ]; then
+            echo "### Scrape run report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat ingestion/phase-4-2-scraping/output/run-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f ingestion/phase-4-3-normalization/output/normalize-report.json ]; then
+            echo "### Normalize run report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat ingestion/phase-4-3-normalization/output/normalize-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f ingestion/phase-4-4-chunking/output/chunk-run-report.json ]; then
+            echo "### Chunk run report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat ingestion/phase-4-4-chunking/output/chunk-run-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f ingestion/phase-4-5-embedding/output/embed-run-report.json ]; then
+            echo "### Embed run report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat ingestion/phase-4-5-embedding/output/embed-run-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f ingestion/phase-4-6-chroma/output/chroma-ingest-report.json ]; then
+            echo "### Chroma ingest report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat ingestion/phase-4-6-chroma/output/chroma-ingest-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi

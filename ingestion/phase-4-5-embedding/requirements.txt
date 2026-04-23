@@ -1,0 +1,2 @@
+# Install PyTorch before this file on Linux CI: see .github/workflows/ingest-corpus.yml
+sentence-transformers>=3.0.0
