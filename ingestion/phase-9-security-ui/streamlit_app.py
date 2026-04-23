@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -7,8 +8,28 @@ from pathlib import Path
 
 import streamlit as st
 
-from runtime_api.config import OUTPUT_DIR, PHASE7_ROOT
-from runtime_api.security import (
+def _load_streamlit_secrets_into_env() -> None:
+    """
+    Streamlit Cloud secrets live in st.secrets (TOML), not process env by default.
+    Our runtime config reads os.environ/.env, so copy relevant secret keys into env.
+    """
+    secret_keys = (
+        "CHROMA_CLOUD_TENANT",
+        "CHROMA_CLOUD_DATABASE",
+        "CHROMA_API_KEY",
+        "GEMINI_API_KEY",
+        "GEMINI_MODEL",
+        "REFUSAL_EDUCATIONAL_URL",
+    )
+    for key in secret_keys:
+        if key in st.secrets and str(st.secrets[key]).strip():
+            os.environ[key] = str(st.secrets[key]).strip()
+
+
+_load_streamlit_secrets_into_env()
+
+from runtime_api.config import OUTPUT_DIR, PHASE7_ROOT  # noqa: E402
+from runtime_api.security import (  # noqa: E402
     append_security_log,
     contains_pii,
     has_prompt_injection_markers,
