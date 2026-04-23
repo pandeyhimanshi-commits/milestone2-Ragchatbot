@@ -2,7 +2,7 @@
 
 This plan deploys the project as:
 - **Scheduler:** GitHub Actions
-- **Backend API:** Render
+- **Backend:** Streamlit
 - **Frontend UI:** Vercel
 
 ---
@@ -12,9 +12,9 @@ This plan deploys the project as:
 - **Ingestion scheduler (Phase 4.1):** GitHub Actions workflow (`.github/workflows/ingest-corpus.yml`)
   - Runs daily (09:15 IST via UTC cron already configured).
   - Executes scrape -> normalize -> chunk -> embed -> Chroma upsert.
-- **Runtime backend (Phase 9 API):** Render Web Service
-  - Runs `uvicorn runtime_api.app:app` from `ingestion/phase-9-security-ui`.
-  - Serves `/chat` and `/health`.
+- **Backend runtime:** Streamlit Cloud app
+  - Runs a Streamlit app from the repository.
+  - Handles chatbot query/response flow using the same retrieval + generation pipeline.
 - **Frontend (Next.js):** Vercel
   - Deploys `frontend/`.
   - Uses `/api/chat` proxy route to reach backend.
@@ -50,9 +50,9 @@ Optional (if scheduler behavior is tuned later):
 - scrape timeouts/retries via env in workflow
 - notification webhook/token for failures
 
-## 3.2 Render (Backend)
+## 3.2 Streamlit (Backend)
 
-Set environment variables on Render service:
+Set these in Streamlit app secrets (`.streamlit/secrets.toml` on platform):
 - `CHROMA_CLOUD_TENANT`
 - `CHROMA_CLOUD_DATABASE`
 - `CHROMA_API_KEY`
@@ -63,25 +63,27 @@ Set environment variables on Render service:
 ## 3.3 Vercel (Frontend)
 
 Set:
-- `BACKEND_CHAT_URL=https://<render-backend-domain>/chat`
+- `BACKEND_CHAT_URL=https://<streamlit-backend-domain>/chat`
 
 The frontend proxy route (`frontend/app/api/chat/route.ts`) uses this value.
+
+Note: Streamlit is primarily app-first (UI). If you need strict `/chat` API compatibility for Vercel, keep a thin API layer that forwards to the Streamlit-backed runtime logic.
 
 ---
 
 ## 4) Deployment Steps
 
-## 4.1 Backend on Render
+## 4.1 Backend on Streamlit
 
-1. Create a new **Web Service** from this repository.
+1. Create a new **Streamlit app** from this repository.
 2. Configure:
-   - Root directory: `ingestion/phase-9-security-ui`
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `uvicorn runtime_api.app:app --host 0.0.0.0 --port $PORT`
-3. Add env vars listed in section 3.2.
+   - Branch: `main`
+   - App file path: your Streamlit entrypoint (for example `ingestion/phase-9-security-ui/streamlit_app.py`)
+   - Python dependencies: include required packages in `requirements.txt`
+3. Add secrets listed in section 3.2.
 4. Deploy and verify:
-   - `GET /health` returns `{"status":"ok"}`
-   - `POST /chat` returns valid response JSON.
+   - Streamlit app opens correctly.
+   - Chatbot answers are generated from the same Chroma + Gemini pipeline.
 
 ## 4.2 Frontend on Vercel
 
@@ -90,7 +92,7 @@ The frontend proxy route (`frontend/app/api/chat/route.ts`) uses this value.
    - Root directory: `frontend`
    - Framework: Next.js (auto-detected)
 3. Add env var:
-   - `BACKEND_CHAT_URL=https://<render-backend-domain>/chat`
+   - `BACKEND_CHAT_URL=https://<streamlit-backend-domain>/chat`
 4. Deploy and verify:
    - Home page loads
    - Sending message reaches backend successfully
@@ -113,9 +115,9 @@ The frontend proxy route (`frontend/app/api/chat/route.ts`) uses this value.
   - Auto deploy on push to configured branch.
   - Preview deployments for PRs.
 
-- **Backend (Render):**
+- **Backend (Streamlit):**
   - Auto deploy on push to configured branch.
-  - Keep health check gate via `/health`.
+  - Verify app health via Streamlit app availability and functional chat test.
 
 - **Scheduler (GitHub Actions):**
   - Time-based cron + manual dispatch.
@@ -145,7 +147,7 @@ The frontend proxy route (`frontend/app/api/chat/route.ts`) uses this value.
 ## 7) Observability & Logs
 
 - **Scheduler logs:** GitHub Actions logs + uploaded scheduler artifacts.
-- **Backend logs:** Render runtime logs (request/exception logs).
+- **Backend logs:** Streamlit app logs + platform logs.
 - **Frontend logs:** Vercel function logs (`/api/chat`) and browser console.
 
 Recommended alerts:
@@ -158,7 +160,7 @@ Recommended alerts:
 ## 8) Rollback Plan
 
 - **Frontend rollback:** Redeploy prior successful Vercel deployment.
-- **Backend rollback:** Redeploy prior Render service version.
+- **Backend rollback:** Redeploy prior Streamlit app commit/version.
 - **Scheduler rollback:** Revert workflow commit, rerun manually.
 - **Data rollback:** Re-run ingestion from stable commit + known good allowlist/config.
 
@@ -175,7 +177,7 @@ Recommended alerts:
 
 ## 10) Suggested Go-Live Sequence
 
-1. Deploy backend to Render and verify `/health` + `/chat`.
+1. Deploy backend to Streamlit and verify functional chatbot response.
 2. Deploy frontend to Vercel with `BACKEND_CHAT_URL`.
 3. Run manual scheduler workflow once.
 4. Execute edge-case suite (`docs/edgecase.md`).
