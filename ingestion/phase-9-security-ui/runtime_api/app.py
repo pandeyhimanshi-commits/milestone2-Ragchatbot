@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -23,14 +25,47 @@ from runtime_api.security import (
 )
 
 PHASE5_ROOT = PHASE7_ROOT.parent / "phase-5-retrieval"
-sys.path.insert(0, str(PHASE5_ROOT))
-sys.path.insert(0, str(PHASE7_ROOT))
-from threading_service.runner import run_chat_turn  # type: ignore  # noqa: E402
-from retrieval_service.encoder import encode_query, get_model  # type: ignore  # noqa: E402
+
+# Do not import threading/retrieval/generation at module load. That pulls in sentence-transformers,
+# torch, chroma, and Gemini in one go and often OOMs or times out on Render before any port opens.
+# Heavy imports are lazy-loaded on first /chat (and optional warmup).
+_run_chat_turn: Callable[..., Any] | None = None
+
+
+def _ensure_rag_path() -> None:
+    p5, p7 = str(PHASE5_ROOT), str(PHASE7_ROOT)
+    if p5 not in sys.path:
+        sys.path.insert(0, p5)
+    if p7 not in sys.path:
+        sys.path.insert(0, p7)
+
+
+def get_run_chat_turn() -> Any:
+    global _run_chat_turn
+    if _run_chat_turn is None:
+        _ensure_rag_path()
+        from threading_service.runner import run_chat_turn  # type: ignore  # noqa: E402
+
+        _run_chat_turn = run_chat_turn
+    return _run_chat_turn
 
 app = FastAPI(title="MF FAQ Runtime API", version="0.1.0")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+cors_allow_origins = os.environ.get("CORS_ALLOW_ORIGINS", "*").strip()
+origins = (
+    [origin.strip() for origin in cors_allow_origins.split(",") if origin.strip()]
+    if cors_allow_origins
+    else ["*"]
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ChatRequest(BaseModel):
@@ -41,8 +76,16 @@ class ChatRequest(BaseModel):
 
 @app.on_event("startup")
 def warmup_models() -> None:
-    # Warm the embedding model and one real encode to avoid a multi-second first /chat.
+    # On Render and small instances, skipping warmup avoids startup timeouts and high RAM spikes.
+    skip_warmup = os.environ.get("SKIP_MODEL_WARMUP", "").strip().lower() in ("1", "true", "yes")
+    if not os.environ.get("SKIP_MODEL_WARMUP") and os.environ.get("RENDER") == "true":
+        skip_warmup = True
+    if skip_warmup:
+        return
+    _ensure_rag_path()
     try:
+        from retrieval_service.encoder import encode_query, get_model  # type: ignore  # noqa: E402
+
         get_model()
         encode_query("warmup: HDFC mutual fund scheme metrics")
     except Exception:
@@ -119,7 +162,9 @@ def chat(req: ChatRequest, request: Request) -> JSONResponse:
         )
 
     try:
-        result = run_chat_turn(thread_id=thread_id, user_message=clean_message, client_ip=client_ip)
+        result = get_run_chat_turn()(
+            thread_id=thread_id, user_message=clean_message, client_ip=client_ip
+        )
     except Exception as e:
         append_security_log(
             {

@@ -1,0 +1,25 @@
+# Optional: "New" → "Blueprint" on Render and point at this file to create the web service.
+# Or continue using the dashboard with the same settings below.
+services:
+  - type: web
+    name: rag-runtime-api
+    runtime: python
+    region: frankfurt
+    plan: free
+    rootDir: ingestion/phase-9-security-ui
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: sh render_start.sh
+    healthCheckPath: /health
+    envVars:
+      - key: SKIP_MODEL_WARMUP
+        value: "1"
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CHROMA_CLOUD_TENANT
+        sync: false
+      - key: CHROMA_CLOUD_DATABASE
+        sync: false
+      - key: CHROMA_API_KEY
+        sync: false
